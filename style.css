@@ -76,7 +76,8 @@ body {
 }
 
 #container section.panel {
-	
+	margin-top: 20px;
+  margin-bottom: 20px;
 	padding: 10px;
 
 	-moz-border-radius: 10px;
@@ -148,19 +149,18 @@ body {
 }
 
 #dictionary-add-view {
-  height: 0px;
+  max-height: 0px;
   visibility: hidden;
   overflow: hidden;
-  transition        : all 0.3s linear;
-  -moz-transition   : all 0.3s linear;
-  -webkit-transition: all 0.3s linear;
-  -o-transition     : all 0.s linear;
+  transition        : all 0.5s linear;
+  -moz-transition   : all 0.5s linear;
+  -webkit-transition: all 0.5s linear;
+  -o-transition     : all 0.5s linear;
 }
 
 #dictionary-add-view.slide {
-  margin:20px;
   visibility: visible;
-  height: 200px;
+  max-height: 700px;
 }
 
 #main-view {
