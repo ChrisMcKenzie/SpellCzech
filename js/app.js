@@ -1,7 +1,25 @@
 $(document).ready(function(){
+	//All words
 	var WORDS = [];
+	//language model
 	var NWORDS = {};
+	//Wrong Words
+	var WWORDS = [];
 	var alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
+	var menuNextButton = $('.menu > ul li.split a#next');
+	var menuPrevButton = $('.menu > ul li.split a#prev');
+
+	//get length of object
+	Object.size = function(obj) {
+	    var size = 0, key;
+	    for (key in obj) {
+	        if (obj.hasOwnProperty(key)) size++;
+	    }
+	    return size;
+	};
+
+	//add some test data
+	read('kill kill kill kill kill kill kill hello kelo kelo kelo kelo kelo kelo kelo kelo kelo help help help help held hell hell helk helk helk helk helk helt pelo pelo pelo');
 
 	//show dictionary adder on button click
 	$('#add-dict').click(function(){
@@ -28,46 +46,165 @@ $(document).ready(function(){
 
 	//on click "Check My Stuff!!" do spell check.
 	$('#check').click(function(){
+		WWORDS = [];
 		checkwords();
+		setSelection($('.textarea')[0]);
 	});
 
 	$('.incorrect').live('click', function(){
-		//get data from incorrect span attribute "data-correction"
-		var correction = $(this).data('correction');
-		$(this).text(correction);
-		checkwords();
+		var data = {
+			currentEl: $(this),
+			adjacentEl: getAdjacent($(this))
+		}
+		
+		showMenu(data);
 	});
 
-	function checkwords(){
-		var text = $('#main-view > form .textarea').text();
-		//read words into array 
-		var words = text.toLowerCase().match(/[a-z]+/g);
-		for(word in words){
-			var correct = correction(words[word]);
-			//if word is not correct highlight
-			if(correct != words[word]){
-				var regex = new RegExp(words[word], "gi");
-				text = text.replace(regex,'<span class="incorrect" contenteditable="false" data-correction="'+ correct +'">' + words[word] + '</span>');
-			}
+	//listen for clicks outside of menu and hide.
+	$(document).mouseup(function(e){
+		var menu = $('.menu');
+
+		if(menu.has(e.target).length === 0){
+			menu.hide();
 		}
-		$('#main-view > form .textarea').html(text);
+	});
+
+	//on click switch to the next wrong word
+	menuNextButton.click(function(){
+		var nextEl = $('.menu').data('siblings')[0],
+			data = {
+			currentEl: nextEl,
+			adjacentEl: getAdjacent(nextEl)
+		}
+		showMenu(data);
+	});
+
+	//on click switch to the next wrong word
+	menuPrevButton.click(function(){
+		var prevEl = $('.menu').data('siblings')[1],
+			data = {
+			currentEl: prevEl,
+			adjacentEl: getAdjacent(prevEl)
+		}
+		showMenu(data);
+	});
+
+
+
+	function showMenu(data){
+		var coords = data.currentEl.offset(),
+		candidates = correction(data.currentEl.text()),
+		buffer = '',
+		list = [];
+		$('.menu ul .words').remove();
+
+		console.log(candidates);
+
+		//sort candidates in descending order so that highest rank word shows first.
+		for(candidate in candidates){
+			list.push(candidate);
+		}
+		list.sort(function(a,b){return a+b});
+		console.log(list);
+
+
+		
+		for(i = 0; i < list.length && i < 5; i++){
+			//$('.menu ul').prepend('<li class="words"><a href="#">' + candidates[list[i]] + '</a></li>');	
+			buffer += '<li class="words"><a href="#">' + candidates[list[i]] + '</a></li>';
+		}
+
+		$('.menu ul').prepend(buffer);
+
+		$('.words').live('click', function(){
+			data.currentEl.text($(this).text()).removeClass('incorrect');
+			read($(this).text());
+
+			$('.menu').hide();
+		});
+
+		$('.menu ul li.add-to-dictionary').live('click',function(){
+			data.currentEl.removeClass('incorrect');
+			read(data.currentEl.text());
+			$('.menu').hide();
+		});
+
+		$('.menu').show().css({
+			top: coords.top + 25,
+			left: Math.round(coords.left)
+		}).data('siblings', data.adjacentEl);
 	}
 
-	//get length of object
-	Object.size = function(obj) {
-	    var size = 0, key;
-	    for (key in obj) {
-	        if (obj.hasOwnProperty(key)) size++;
-	    }
-	    return size;
-	};
+	//get adjacent elements or loop to first or last
+	function getAdjacent(el){
+		//get next element if none exists assume at the end and go the beginning.
+		var nextEl = (el.closest('span').nextAll('.incorrect')[0] == undefined) ? $('.incorrect').first() : el.closest('span').nextAll('.incorrect')[0],
+		//get the previous element if none exists go to the end.
+		prevEl = (el.closest('span').prevAll('.incorrect')[0] == undefined) ? $('.incorrect').last() : el.closest('span').prevAll('.incorrect')[0];
+
+		return [$(nextEl), $(prevEl)];
+	}
+
+	//check the words in our textarea and see if they are wrong.
+	//highlight them when the are. 
+	function checkwords(){
+		//remove spans
+		/*$('#main-view > form .textarea span').each(function(){
+			$(this).replaceWith(this.childNodes);
+		});*/
+
+		var text = $('#main-view > form .textarea').text(),
+			buffer = [];
+
+		text = spanify(text);
+		$('#main-view > form .textarea').html(text);
+		$('#main-view > form .textarea span').each(
+			function(id, el){
+				var word = $(el).text().toLowerCase();
+				var correct = correction(word);
+				//console.log(correct);
+				if(correct != word){
+					//buffer = buffer.concat('<span class="incorrect" contenteditable="false">' + $(el).text() + '</span>');
+					$(el).addClass('incorrect').attr('contenteditable', false);
+				}/* else {
+					if($(el).text() !== " "){
+						buffer = buffer.concat($(el).text());
+					}
+				}*/
+			}
+		);
+
+		//$('#main-view > form .textarea').html(buffer.join(' '));
+	}
+
+	//wrap every word in a <span>
+	function spanify(text){
+		words = text.match(/[a-z]+/gi);
+		for(word in words){
+			words[word] = '<span>' + words[word] + '</span>';
+		}
+		return words.join(' ');
+	}
+
+	//set selection caret to the end of element. 
+	function setSelection(el){
+		var range = document.createRange();
+		var selection = window.getSelection();
+
+		range.selectNodeContents(el);
+		range.collapse(false);
+		
+		selection.removeAllRanges();
+		selection.addRange(range);
+	}
+
+	
 
 	//read words from string into split up array
 	function read(words){
-		var str = words.toLowerCase(),
-			regex = /[a-z]+/g
-		WORDS = str.match(regex).concat(WORDS);
+		WORDS = WORDS.concat(words.toLowerCase().match(/[a-z]+/g));
 		NWORDS = train(WORDS);
+		console.log(WORDS);
 	}
 
 	// A helper function that returns the word with the most occurences in the language
@@ -124,7 +261,7 @@ $(document).ready(function(){
 			if (NWORDS.hasOwnProperty(edit)) candidates[NWORDS[edit]] = edit;
 		});
 		//if candidates exist return most commonly used candidate.
-		if (Object.size(candidates) > 0) return candidates[max(candidates)];
+		if (Object.size(candidates) > 0) return candidates;
 		//otherwise run through changes again. 
 		list.forEach(function (edit) {
 			changes(edit).forEach(function (w) {
@@ -132,6 +269,6 @@ $(document).ready(function(){
 			});
 		});
 		//if candidates exist show candidate else give original word.
-		return Object.size(candidates) > 0 ? candidates[max(candidates)] : word;
+		return Object.size(candidates) > 0 ? candidates : word;
 	}
 });
