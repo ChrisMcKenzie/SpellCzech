@@ -43,7 +43,6 @@ $(document).ready(function(){
 
 	$('#load-demo-bank').click(function(){
 		$.get('banks/bank1', function(response){
-			console.log(response);
 			read(response);
 			$('#dictionary-add-view').toggleClass('slide');
 			$('#add-dict').show();
@@ -123,8 +122,7 @@ $(document).ready(function(){
 			$('.menu ul').prepend(buffer);
 		}
 
-		$('.words').live('click', function(){
-
+		$('.words').click(function(){
 			data.currentEl.text($(this).text()).removeClass('incorrect').attr('contenteditable', true);
 			read($(this).text());
 			
@@ -145,12 +143,14 @@ $(document).ready(function(){
 		}).data('siblings', data.adjacentEl);
 	}
 
+
+
 	//get adjacent elements or loop to first or last
 	function getAdjacent(el){
 		//get next element if none exists assume at the end and go the beginning.
-		var nextEl = (el.closest('span').nextAll()[0] == undefined) ? $().first() : el.closest('span').nextAll()[0],
+		var nextEl = (el.closest('span').nextAll()[0] == undefined) ? $('.incorrect').first(): el.closest('span').nextAll()[0],
 		//get the previous element if none exists go to the end.
-		prevEl = (el.closest('span').prevAll()[0] == undefined) ? $().last() : el.closest('span').prevAll()[0];
+		prevEl = (el.closest('span').prevAll()[0] == undefined) ? $('.incorrect').last() : el.closest('span').prevAll()[0];
 
 		return [$(nextEl), $(prevEl)];
 	}

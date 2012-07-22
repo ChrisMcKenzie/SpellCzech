@@ -254,7 +254,7 @@ body {
 
 #dictionary-add-view .demo-menu {
   width: 200px;
-  position: absolute;
+  position: fixed;
   right: 0px;
   background: #f5f5f5;
   z-index: 1000;
