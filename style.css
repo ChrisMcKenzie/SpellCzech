@@ -252,6 +252,63 @@ body {
   max-height: 700px;
 }
 
+#dictionary-add-view .demo-menu {
+  width: 200px;
+  position: absolute;
+  right: -20px;
+  background: #f5f5f5;
+  z-index: 1000;
+
+  -webkit-border-top-left-radius: 8px;
+  -webkit-border-bottom-left-radius: 8px;
+  -moz-border-radius-topleft: 8px;
+  -moz-border-radius-bottomleft: 8px;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  border: 1px solid rgb(200,200,200);
+
+  -moz-box-shadow: 0px -1px 10px #ccc;
+  -webkit-box-shadow: 0px -1px 10px #ccc;
+   box-shadow: 0px -1px 10px #ccc;
+}
+
+.demo-menu ul {
+  margin: 0;
+  list-style: none;
+  padding:0;
+}
+
+.demo-menu ul li {
+  height: 30px;
+  padding-top:10px;
+
+  font-size: 12pt;
+  text-align: center;
+  display: block;
+  border-bottom: 1px solid rgb(230,230,230);
+}
+
+.demo-menu ul li:first-of-type {
+  -webkit-border-top-left-radius: 8px;
+  -moz-border-radius-topleft: 8px;
+  border-top-left-radius: 8px;
+}
+
+.demo-menu ul li:last-of-type {
+  -webkit-border-bottom-left-radius: 8px;
+  -moz-border-radius-bottomleft: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.demo-menu ul li:hover {
+  background: rgb(240,240,240);
+}
+
+.demo-menu ul li a {
+  color: #787878; 
+  text-decoration: none;
+}
+
 #main-view {
   margin-top: 20px;
   margin-bottom: 20px;

@@ -18,9 +18,6 @@ $(document).ready(function(){
 	    return size;
 	};
 
-	//add some test data
-	read('kill kill kill kill kill kill kill hello kelo kelo kelo kelo kelo kelo kelo kelo kelo help help help help held hell hell helk helk helk helk helk helt pelo pelo pelo');
-
 	//show dictionary adder on button click
 	$('#add-dict').click(function(){
 		$(this).hide();
@@ -44,6 +41,15 @@ $(document).ready(function(){
 		$('#main-view > form .textarea').focus();
 	});
 
+	$('#load-demo-bank').click(function(){
+		$.get('banks/bank1', function(response){
+			console.log(response);
+			read(response);
+			$('#dictionary-add-view').toggleClass('slide');
+			$('#add-dict').show();
+		});
+	})
+
 	//on click "Check My Stuff!!" do spell check.
 	$('#check').click(function(){
 		WWORDS = [];
@@ -51,7 +57,7 @@ $(document).ready(function(){
 		setSelection($('.textarea')[0]);
 	});
 
-	$('.incorrect').live('click', function(){
+	$('span').live('click', function(){
 		var data = {
 			currentEl: $(this),
 			adjacentEl: getAdjacent($(this))
@@ -98,34 +104,38 @@ $(document).ready(function(){
 		list = [];
 		$('.menu ul .words').remove();
 
-		console.log(candidates);
+		console.log(typeof(candidates));
 
-		//sort candidates in descending order so that highest rank word shows first.
-		for(candidate in candidates){
-			list.push(candidate);
+		if(typeof(candidates) != 'string'){
+			//sort candidates in descending order so that highest rank word shows first.
+			for(candidate in candidates){
+				list.push(candidate);
+			}
+			list.sort(function(a,b){return a+b});
+
+
+			
+			for(i = 0; i < list.length && i < 5; i++){
+				//$('.menu ul').prepend('<li class="words"><a href="#">' + candidates[list[i]] + '</a></li>');	
+				buffer += '<li class="words"><a href="#">' + candidates[list[i]] + '</a></li>';
+			}
+
+			$('.menu ul').prepend(buffer);
 		}
-		list.sort(function(a,b){return a+b});
-		console.log(list);
-
-
-		
-		for(i = 0; i < list.length && i < 5; i++){
-			//$('.menu ul').prepend('<li class="words"><a href="#">' + candidates[list[i]] + '</a></li>');	
-			buffer += '<li class="words"><a href="#">' + candidates[list[i]] + '</a></li>';
-		}
-
-		$('.menu ul').prepend(buffer);
 
 		$('.words').live('click', function(){
-			data.currentEl.text($(this).text()).removeClass('incorrect');
-			read($(this).text());
 
+			data.currentEl.text($(this).text()).removeClass('incorrect').attr('contenteditable', true);
+			read($(this).text());
+			
 			$('.menu').hide();
 		});
 
 		$('.menu ul li.add-to-dictionary').live('click',function(){
-			data.currentEl.removeClass('incorrect');
+			//remove highlight on all instances of word.
+			$('.incorrect:contains(' + data.currentEl.text() + ')').removeClass('incorrect').attr('contenteditable', true);
 			read(data.currentEl.text());
+			
 			$('.menu').hide();
 		});
 
@@ -138,9 +148,9 @@ $(document).ready(function(){
 	//get adjacent elements or loop to first or last
 	function getAdjacent(el){
 		//get next element if none exists assume at the end and go the beginning.
-		var nextEl = (el.closest('span').nextAll('.incorrect')[0] == undefined) ? $('.incorrect').first() : el.closest('span').nextAll('.incorrect')[0],
+		var nextEl = (el.closest('span').nextAll()[0] == undefined) ? $().first() : el.closest('span').nextAll()[0],
 		//get the previous element if none exists go to the end.
-		prevEl = (el.closest('span').prevAll('.incorrect')[0] == undefined) ? $('.incorrect').last() : el.closest('span').prevAll('.incorrect')[0];
+		prevEl = (el.closest('span').prevAll()[0] == undefined) ? $().last() : el.closest('span').prevAll()[0];
 
 		return [$(nextEl), $(prevEl)];
 	}
@@ -148,11 +158,6 @@ $(document).ready(function(){
 	//check the words in our textarea and see if they are wrong.
 	//highlight them when the are. 
 	function checkwords(){
-		//remove spans
-		/*$('#main-view > form .textarea span').each(function(){
-			$(this).replaceWith(this.childNodes);
-		});*/
-
 		var text = $('#main-view > form .textarea').text(),
 			buffer = [];
 
@@ -162,19 +167,11 @@ $(document).ready(function(){
 			function(id, el){
 				var word = $(el).text().toLowerCase();
 				var correct = correction(word);
-				//console.log(correct);
 				if(correct != word){
-					//buffer = buffer.concat('<span class="incorrect" contenteditable="false">' + $(el).text() + '</span>');
 					$(el).addClass('incorrect').attr('contenteditable', false);
-				}/* else {
-					if($(el).text() !== " "){
-						buffer = buffer.concat($(el).text());
-					}
-				}*/
+				}
 			}
 		);
-
-		//$('#main-view > form .textarea').html(buffer.join(' '));
 	}
 
 	//wrap every word in a <span>
@@ -204,7 +201,7 @@ $(document).ready(function(){
 	function read(words){
 		WORDS = WORDS.concat(words.toLowerCase().match(/[a-z]+/g));
 		NWORDS = train(WORDS);
-		console.log(WORDS);
+		//console.log(WORDS);
 	}
 
 	// A helper function that returns the word with the most occurences in the language

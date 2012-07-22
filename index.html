@@ -30,11 +30,19 @@
 				<h2> Spell <span>Czech</span> </h2>
 			</header>
 			<section id="dictionary-add-view" class="panel">
+				<div class="demo-menu">
+					<ul>
+						<li id="load-demo-bank"><a href="#">Demo Word Bank</a></li>
+					</ul>
+				</div>
+
 				<form>
 					<textarea></textarea>
 				</form>
 				<button id="add" class="cupid-green">Add</button>
 				<button id="cancel" class="clean-gray">Cancel</button>
+
+				
 			</section>
 			<section id="main-view" class="panel">
 				<p>
@@ -42,8 +50,12 @@
 					Just start typing, and click "check my  stuff!!" when you're done. Incorrect words will be highlighted, click on them to correct them.
 					To add words to the dictionary please click the "Add to Dictionary" button at the bottom of the page.
 				</p>
+				<p>
+					SpellCzech uses a neet little algorithm that reads each word from a string of text and stores it into a database of correctly spelled words then when you type into the box below and click "Check My Stuff!" it reads in all of your words and then goes through a process of modifying the word to fit a match in our correct words data bank.
+					SpellCzech will also get better at finding the correct word the more you use it because everytime you select a word correction it ranks that words popularity and it becomes a higher probable match then other candidates.
+				</p>
 				<form>
-					<div class="textarea" contenteditable="true">Mispeled Haellasojasdoa asdasdaspd helo</div>
+					<div class="textarea" contenteditable="true"></div>
 				</form>
 				<button id="check" class="cupid-green">Check My Stuff!</button>
 			</section>
