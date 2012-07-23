@@ -9,6 +9,11 @@ $(document).ready(function(){
 	var menuNextButton = $('.menu > ul li.split a#next');
 	var menuPrevButton = $('.menu > ul li.split a#prev');
 
+	//load test word bank for testing
+	/*$.get('banks/bank1', function(response){
+			read(response);
+	});*/
+
 	//get length of object
 	Object.size = function(obj) {
 	    var size = 0, key;
@@ -81,6 +86,7 @@ $(document).ready(function(){
 			currentEl: nextEl,
 			adjacentEl: getAdjacent(nextEl)
 		}
+		
 		showMenu(data);
 	});
 
@@ -102,8 +108,6 @@ $(document).ready(function(){
 		buffer = '',
 		list = [];
 		$('.menu ul .words').remove();
-
-		console.log(typeof(candidates));
 
 		if(typeof(candidates) != 'string'){
 			//sort candidates in descending order so that highest rank word shows first.
@@ -127,6 +131,7 @@ $(document).ready(function(){
 			read($(this).text());
 			
 			$('.menu').hide();
+			setSelection(data.currentEl[0]);
 		});
 
 		$('.menu ul li.add-to-dictionary').live('click',function(){
@@ -135,6 +140,7 @@ $(document).ready(function(){
 			read(data.currentEl.text());
 			
 			$('.menu').hide();
+			setSelection(data.currentEl[0]);
 		});
 
 		$('.menu').show().css({
@@ -148,9 +154,9 @@ $(document).ready(function(){
 	//get adjacent elements or loop to first or last
 	function getAdjacent(el){
 		//get next element if none exists assume at the end and go the beginning.
-		var nextEl = (el.closest('span').nextAll()[0] == undefined) ? $('.incorrect').first(): el.closest('span').nextAll()[0],
+		var nextEl = (el.nextAll().closest('.incorrect')[0] == undefined) ? $('.incorrect').first(): el.nextAll().closest('.incorrect')[0],
 		//get the previous element if none exists go to the end.
-		prevEl = (el.closest('span').prevAll()[0] == undefined) ? $('.incorrect').last() : el.closest('span').prevAll()[0];
+		prevEl = (el.prevAll().closest('.incorrect')[0] == undefined) ? $('.incorrect').last() : el.prevAll().closest('.incorrect')[0];
 
 		return [$(nextEl), $(prevEl)];
 	}
