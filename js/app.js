@@ -46,8 +46,9 @@ $(document).ready(function(){
 		$('#main-view > form .textarea').focus();
 	});
 
-	$('#load-demo-bank').click(function(){
-		$.get('banks/bank1', function(response){
+	$('.demo-menu ul li a').click(function(e){
+		e.preventDefault();
+		$.get($(this).attr('href'), function(response){
 			read(response);
 			$('#dictionary-add-view').toggleClass('slide');
 			$('#add-dict').show();
@@ -100,14 +101,17 @@ $(document).ready(function(){
 		showMenu(data);
 	});
 
-
-
 	function showMenu(data){
 		var coords = data.currentEl.offset(),
 		candidates = correction(data.currentEl.text()),
 		buffer = '',
-		list = [];
+		list = [],
+		isCapital = false;
 		$('.menu ul .words').remove();
+		//check to see if word is capitalized to preserve it
+		if(data.currentEl.text().slice(0)[0] == data.currentEl.text().slice(0)[0].toUpperCase()){
+			isCapital = true;
+		}
 
 		if(typeof(candidates) != 'string'){
 			//sort candidates in descending order so that highest rank word shows first.
@@ -127,7 +131,16 @@ $(document).ready(function(){
 		}
 
 		$('.words').click(function(){
-			data.currentEl.text($(this).text()).removeClass('incorrect').attr('contenteditable', true);
+			var word;
+			if(isCapital){
+				word = $(this).text().split('');
+				word[0] = word[0].toUpperCase();
+				word = word.join('');
+			} else {
+				word = $(this).text();
+			}
+
+			data.currentEl.text(word).removeClass('incorrect').attr('contenteditable', true);
 			read($(this).text());
 			
 			$('.menu').hide();
@@ -171,8 +184,8 @@ $(document).ready(function(){
 		$('#main-view > form .textarea').html(text);
 		$('#main-view > form .textarea span').each(
 			function(id, el){
-				var word = $(el).text().toLowerCase();
-				var correct = correction(word);
+				var word = $(el).text().toLowerCase(),
+					correct = correction(word);
 				if(correct != word){
 					$(el).addClass('incorrect').attr('contenteditable', false);
 				}
@@ -182,11 +195,13 @@ $(document).ready(function(){
 
 	//wrap every word in a <span>
 	function spanify(text){
-		words = text.match(/[a-z]+/gi);
-		for(word in words){
-			words[word] = '<span>' + words[word] + '</span>';
+		if(text !== ''){
+			words = text.match(/[a-z]+/gi);
+			for(word in words){
+				words[word] = '<span>' + words[word] + '</span>';
+			}
+			return words.join(' ');
 		}
-		return words.join(' ');
 	}
 
 	//set selection caret to the end of element. 
@@ -201,13 +216,10 @@ $(document).ready(function(){
 		selection.addRange(range);
 	}
 
-	
-
 	//read words from string into split up array
 	function read(words){
 		WORDS = WORDS.concat(words.toLowerCase().match(/[a-z]+/g));
 		NWORDS = train(WORDS);
-		//console.log(WORDS);
 	}
 
 	// A helper function that returns the word with the most occurences in the language
