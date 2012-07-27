@@ -1,18 +1,11 @@
 $(document).ready(function(){
 	//All words
-	var WORDS = [];
+	var WORDS = [],
 	//language model
-	var NWORDS = {};
-	//Wrong Words
-	var WWORDS = [];
-	var alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
-	var menuNextButton = $('.menu > ul li.split a#next');
-	var menuPrevButton = $('.menu > ul li.split a#prev');
-
-	//load test word bank for testing
-	/*$.get('banks/bank1', function(response){
-			read(response);
-	});*/
+	NWORDS = {},
+	alphabet = "abcdefghijklmnopqrstuvwxyz".split(''),
+	menuNextButton = $('.menu > ul li.split a#next'),
+	menuPrevButton = $('.menu > ul li.split a#prev');
 
 	//get length of object
 	Object.size = function(obj) {
@@ -23,6 +16,7 @@ $(document).ready(function(){
 	    return size;
 	};
 
+	/********** LISTENERS *********/
 	//show dictionary adder on button click
 	$('#add-dict').click(function(){
 		$(this).hide();
@@ -45,7 +39,7 @@ $(document).ready(function(){
 		$('#dictionary-add-view > form textarea').val('');
 		$('#main-view > form .textarea').focus();
 	});
-
+	//Demo menu Listeners
 	$('.demo-menu ul li a').click(function(e){
 		e.preventDefault();
 		$.get($(this).attr('href'), function(response){
@@ -54,49 +48,37 @@ $(document).ready(function(){
 			$('#add-dict').show();
 		});
 	})
-
 	//on click "Check My Stuff!!" do spell check.
 	$('#check').click(function(){
-		WWORDS = [];
 		checkwords();
-		setSelection($('.textarea')[0]);
 	});
-
+	//show menu on click
 	$('span').live('click', function(){
 		var data = {
-			currentEl: $(this),
-			adjacentEl: getAdjacent($(this))
+			currentEl: $(this)
 		}
-		
 		showMenu(data);
 	});
-
 	//listen for clicks outside of menu and hide.
 	$(document).mouseup(function(e){
 		var menu = $('.menu');
-
 		if(menu.has(e.target).length === 0){
 			menu.hide();
 		}
 	});
-
 	//on click switch to the next wrong word
 	menuNextButton.click(function(){
 		var nextEl = $('.menu').data('siblings')[0],
 			data = {
 			currentEl: nextEl,
-			adjacentEl: getAdjacent(nextEl)
 		}
-		
 		showMenu(data);
 	});
-
 	//on click switch to the next wrong word
 	menuPrevButton.click(function(){
 		var prevEl = $('.menu').data('siblings')[1],
 			data = {
-			currentEl: prevEl,
-			adjacentEl: getAdjacent(prevEl)
+			currentEl: prevEl
 		}
 		showMenu(data);
 	});
@@ -104,6 +86,7 @@ $(document).ready(function(){
 	function showMenu(data){
 		var coords = data.currentEl.offset(),
 		candidates = correction(data.currentEl.text()),
+		adjacentEl = getAdjacent(data.currentEl),
 		buffer = '',
 		list = [],
 		isCapital = false;
@@ -119,14 +102,9 @@ $(document).ready(function(){
 				list.push(candidate);
 			}
 			list.sort(function(a,b){return a+b});
-
-
-			
 			for(i = 0; i < list.length && i < 5; i++){
-				//$('.menu ul').prepend('<li class="words"><a href="#">' + candidates[list[i]] + '</a></li>');	
 				buffer += '<li class="words"><a href="#">' + candidates[list[i]] + '</a></li>';
 			}
-
 			$('.menu ul').prepend(buffer);
 		}
 
@@ -159,21 +137,18 @@ $(document).ready(function(){
 		$('.menu').show().css({
 			top: coords.top + 25,
 			left: Math.round(coords.left)
-		}).data('siblings', data.adjacentEl);
+		}).data('siblings', adjacentEl);
 	}
-
-
 
 	//get adjacent elements or loop to first or last
 	function getAdjacent(el){
 		//get next element if none exists assume at the end and go the beginning.
 		var nextEl = (el.nextAll().closest('.incorrect')[0] == undefined) ? $('.incorrect').first(): el.nextAll().closest('.incorrect')[0],
 		//get the previous element if none exists go to the end.
-		prevEl = (el.prevAll().closest('.incorrect')[0] == undefined) ? $('.incorrect').last() : el.prevAll().closest('.incorrect')[0];
 
+		prevEl = (el.prevAll().closest('.incorrect')[el.prevAll().closest('.incorrect').length-1] == undefined) ? $('.incorrect').last() : el.prevAll().closest('.incorrect')[el.prevAll().closest('.incorrect').length-1];
 		return [$(nextEl), $(prevEl)];
 	}
-
 	//check the words in our textarea and see if they are wrong.
 	//highlight them when the are. 
 	function checkwords(){
@@ -192,7 +167,6 @@ $(document).ready(function(){
 			}
 		);
 	}
-
 	//wrap every word in a <span>
 	function spanify(text){
 		if(text !== ''){
@@ -203,7 +177,6 @@ $(document).ready(function(){
 			return words.join(' ');
 		}
 	}
-
 	//set selection caret to the end of element. 
 	function setSelection(el){
 		var range = document.createRange();
@@ -215,13 +188,11 @@ $(document).ready(function(){
 		selection.removeAllRanges();
 		selection.addRange(range);
 	}
-
 	//read words from string into split up array
 	function read(words){
 		WORDS = WORDS.concat(words.toLowerCase().match(/[a-z]+/g));
 		NWORDS = train(WORDS);
 	}
-
 	// A helper function that returns the word with the most occurences in the language
 	// model, among the supplied candidates.
 	function max(candidates) {
@@ -230,8 +201,7 @@ $(document).ready(function(){
 			if (candidates.hasOwnProperty(candidate))
 				arr.push(candidate);
 		return Math.max.apply(null, arr);
-	};
-
+	}
 	//train probability model
 	function train(words){
 		var model = {};
@@ -242,7 +212,6 @@ $(document).ready(function(){
 		}
 		return model
 	}
-
 	//return all possible changes that can be made to the given word.
 	//can be deletions, insertions, alterations, and transpositions.
 	function changes(word) {
@@ -265,7 +234,6 @@ $(document).ready(function(){
 			});
 		return results;
 	}
-
 	//Find probable corrections.
 	function correction(word){
 		//if word exists in language model return original word
