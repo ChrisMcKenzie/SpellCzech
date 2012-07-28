@@ -136,7 +136,7 @@ $(document).ready(function(){
 
 		$('.menu').show().css({
 			top: coords.top + 25,
-			left: Math.round(coords.left)
+			left: coords.left
 		}).data('siblings', adjacentEl);
 	}
 
