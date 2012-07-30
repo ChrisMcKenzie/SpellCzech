@@ -6,7 +6,6 @@ $(document).ready(function(){
 	alphabet = "abcdefghijklmnopqrstuvwxyz".split(''),
 	menuNextButton = $('.menu > ul li.split a#next'),
 	menuPrevButton = $('.menu > ul li.split a#prev');
-
 	//get length of object
 	Object.size = function(obj) {
 	    var size = 0, key;
@@ -15,13 +14,12 @@ $(document).ready(function(){
 	    }
 	    return size;
 	};
-
-	/********** LISTENERS *********/
 	//show dictionary adder on button click
 	$('#add-dict').click(function(){
 		$(this).hide();
 		$('#dictionary-add-view').toggleClass('slide');
 		$('#dictionary-add-view > form textarea').focus();
+
 	});
 	//hide dictionary adder on click
 	$('#cancel').click(function(){
@@ -33,6 +31,7 @@ $(document).ready(function(){
 	$('#add').click(function(){
 		var words = $('#dictionary-add-view > form textarea').val();
 		read(words);
+		updateTopWords();
 		$('#add-dict').show();
 		$('#main-view').toggleClass('slide');
 		$('#dictionary-add-view').toggleClass('slide');
@@ -40,14 +39,15 @@ $(document).ready(function(){
 		$('#main-view > form .textarea').focus();
 	});
 	//Demo menu Listeners
-	$('.demo-menu ul li a').click(function(e){
+	$('.demo-menu ul #load-demo-bank a').click(function(e){
 		e.preventDefault();
 		$.get($(this).attr('href'), function(response){
 			read(response);
+			updateTopWords();
 			$('#dictionary-add-view').toggleClass('slide');
 			$('#add-dict').show();
 		});
-	})
+	});
 	//on click "Check My Stuff!!" do spell check.
 	$('#check').click(function(){
 		checkwords();
@@ -82,7 +82,15 @@ $(document).ready(function(){
 		}
 		showMenu(data);
 	});
-
+	//get top five most used words.
+	function updateTopWords(){
+		words = getTopFiveWords(NWORDS);
+		$('#top-words ul').empty();
+		for(word in words){
+			$('#top-words ul').append('<li>' + words[word][0] + ' - ' + words[word][1] + ' times</li>');
+		}
+		$('#top-words').show();
+	}
 	function showMenu(data){
 		var coords = data.currentEl.offset(),
 		candidates = correction(data.currentEl.text()),
@@ -139,7 +147,6 @@ $(document).ready(function(){
 			left: coords.left
 		}).data('siblings', adjacentEl);
 	}
-
 	//get adjacent elements or loop to first or last
 	function getAdjacent(el){
 		//get next element if none exists assume at the end and go the beginning.
@@ -201,6 +208,16 @@ $(document).ready(function(){
 			if (candidates.hasOwnProperty(candidate))
 				arr.push(candidate);
 		return Math.max.apply(null, arr);
+	}
+	//get top 5 most commonly used words; returns array of the word and popularity
+	function getTopFiveWords(words){
+		arr = []
+		for(var word in words){
+			arr.push([word, words[word]]);
+		}
+		arr = arr.sort(function(a, b){return a[1] - b[1]});
+		arr = arr.slice(arr.length -5,arr.length);
+		return arr;
 	}
 	//train probability model
 	function train(words){

@@ -10,11 +10,10 @@
 		<!-- JS Include -->
 		<!-- Grab Google CDN's jQuery, with a protocol relative URL;-->
     	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    	 <script>window.jQuery || document.write('<script src="js/jquery-min.js"><\/script>')</script>
+    	<script>window.jQuery || document.write('<script src="js/jquery-min.js"><\/script>')</script>
 		<script src="js/app.js"></script>
 	</head>
 	<body>
-		<div class="message"></div>
 		<div class="menu">
 			<ul>
 				<li class="add-to-dictionary">
@@ -29,6 +28,11 @@
 			<header>
 				<h2> Spell <span>Czech</span> </h2>
 			</header>
+			<section id="top-words">
+				<h3>Top Words:</h3>
+				<ul>
+				</ul>
+			</section>
 			<section id="dictionary-add-view" class="panel">
 				<div class="demo-menu">
 					<ul>
@@ -61,9 +65,6 @@
 				<button id="check" class="cupid-green">Check My Stuff!</button>
 			</section>
 			<center><button id="add-dict" class="cupid-green">Add to Dictionary</button></center>
-			
-
 		</section>
-		
 	</body>
 </html>
