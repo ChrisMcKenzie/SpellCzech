@@ -5,7 +5,8 @@ $(document).ready(function(){
 	NWORDS = {},
 	alphabet = "abcdefghijklmnopqrstuvwxyz".split(''),
 	menuNextButton = $('.menu > ul li.split a#next'),
-	menuPrevButton = $('.menu > ul li.split a#prev');
+	menuPrevButton = $('.menu > ul li.split a#prev'),
+	data = {};
 	//get length of object
 	Object.size = function(obj) {
 	    var size = 0, key;
@@ -54,7 +55,7 @@ $(document).ready(function(){
 	});
 	//show menu on click
 	$('span').live('click', function(){
-		var data = {
+		data = {
 			currentEl: $(this)
 		}
 		showMenu(data);
@@ -68,19 +69,30 @@ $(document).ready(function(){
 	});
 	//on click switch to the next wrong word
 	menuNextButton.click(function(){
-		var nextEl = $('.menu').data('siblings')[0],
-			data = {
+		var nextEl = $('.menu').data('siblings')[0];
+		
+		data = {
 			currentEl: nextEl,
 		}
 		showMenu(data);
 	});
 	//on click switch to the next wrong word
 	menuPrevButton.click(function(){
-		var prevEl = $('.menu').data('siblings')[1],
-			data = {
+		var prevEl = $('.menu').data('siblings')[1];
+			
+		data = {
 			currentEl: prevEl
 		}
 		showMenu(data);
+	});
+	$('.menu ul li.add-to-dictionary').click(function(){
+		//console.log(data);
+		//remove highlight on all instances of word.
+		$('.incorrect:contains("' + data.currentEl.text() + '")').removeClass('incorrect').attr('contenteditable', true);
+		read(data.currentEl.text());
+		
+		$('.menu').hide();
+		setSelection(data.currentEl[0]);
 	});
 	//get top five most used words.
 	function updateTopWords(){
@@ -133,14 +145,7 @@ $(document).ready(function(){
 			setSelection(data.currentEl[0]);
 		});
 
-		$('.menu ul li.add-to-dictionary').live('click',function(){
-			//remove highlight on all instances of word.
-			$('.incorrect:contains(' + data.currentEl.text() + ')').removeClass('incorrect').attr('contenteditable', true);
-			read(data.currentEl.text());
-			
-			$('.menu').hide();
-			setSelection(data.currentEl[0]);
-		});
+		
 
 		$('.menu').show().css({
 			top: coords.top + 25,
